@@ -41,3 +41,9 @@ app-example
 # generated native folders
 /ios
 /android
+
+# IDE / local settings
+.idea/
+
+# Firebase config (keep out of GitHub)
+constants/firebase.ts
