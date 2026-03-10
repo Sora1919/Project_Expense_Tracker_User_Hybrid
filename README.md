@@ -1,50 +1,161 @@
-# Welcome to your Expo app 👋
+# Project Expense Tracker (User App) — Hybrid (React Native + Expo)
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+This repository contains the **Hybrid User application** for Coursework 1.
+The User app allows users to **browse projects from Firebase Realtime Database**, **search by name/date**, **favourite projects**, and **add expenses** to projects.
 
-## Get started
+---
 
-1. Install dependencies
+## Features
 
-   ```bash
-   npm install
-   ```
+### Feature (g) — Browse Projects from Cloud
 
-2. Start the app
+* Fetch project list from **Firebase Realtime Database**
+* Display projects in a list
 
-   ```bash
-   npx expo start
-   ```
+### Feature (g) — Search
 
-In the output, you'll find options to open the app in a
+* Search projects by:
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+  * **Project name / description**
+  * **Date** (supports partial input like `2026-03`)
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+### Feature (h) — Favourite Projects
 
-## Get a fresh project
+* Favourite (⭐) projects for quick access
+* Favourites are stored in Firebase RTDB under the signed-in user:
+  `userFavourites/<uid>/<projectId> = true`
+* Favourites appear in the **Favorites** tab
 
-When you're ready, run:
+### Add Expense (User submits expenses)
 
-```bash
-npm run reset-project
+* Users can add expenses to:
+  `projects/<projectId>/expenses/<expenseId>`
+
+---
+
+## Tech Stack
+
+* **React Native (Expo)**
+* **Expo Router** (file-based routing)
+* **Firebase JS SDK**
+
+  * Realtime Database
+  * Anonymous Authentication
+
+---
+
+## Firebase Setup
+
+### 1) Create / use the same Firebase project as the Admin app
+
+In Firebase Console enable:
+
+* **Realtime Database**
+* **Authentication → Anonymous**
+
+### 2) Add a Web App (to get `firebaseConfig`)
+
+Firebase Console → Project Settings → **Your apps** → **Add app → Web**
+Copy the provided `firebaseConfig` object.
+
+### 3) Realtime Database Rules (recommended)
+
+```json
+{
+  "rules": {
+    "projects": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    },
+    "userFavourites": {
+      "$uid": {
+        ".read": "auth != null && auth.uid == $uid",
+        ".write": "auth != null && auth.uid == $uid"
+      }
+    }
+  }
+}
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+---
 
-## Learn more
+## Local Config File (Required)
 
-To learn more about developing your project with Expo, look at the following resources:
+For security/clean GitHub repo, **`constants/firebase.ts` is ignored** and not committed.
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+### Step A: Create config file
 
-## Join the community
+1. Copy:
 
-Join our community of developers creating universal apps.
+* `constants/firebase.example.ts`
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+2. Paste as:
+
+* `constants/firebase.ts`
+
+### Step B: Paste your Firebase Web config
+
+Open `constants/firebase.ts` and replace the placeholder values with your real `firebaseConfig`.
+
+---
+
+## Install & Run
+
+### Install dependencies
+
+```bash
+npm install
+```
+
+### Run (Web)
+
+```bash
+npx expo start
+```
+
+### Run (iOS via Expo Go)
+
+If LAN connection fails, use tunnel:
+
+```bash
+npx expo start --tunnel --clear
+```
+
+Scan the QR code using **Expo Go**.
+
+### Run (Android Emulator)
+
+1. Start Android emulator from Android Studio Device Manager
+2. Run:
+
+```bash
+npx expo start --clear
+```
+
+Press `a` to open Android
+
+---
+
+## App Routes (Expo Router)
+
+* `app/(Projects)/index.tsx` — Projects list + search + favourite toggle
+* `app/(Projects)/explore.tsx` — Favorites tab
+* `app/project/[projectId].tsx` — Project details + expenses list
+* `app/project/[projectId]/add-expense.tsx` — Add expense form
+
+---
+
+## Demo Flow (Suggested)
+
+1. Upload projects from Admin app to Firebase RTDB
+2. Open User app → browse projects
+3. Search by name/date
+4. Favourite a project → check Favorites tab
+5. Add an expense to a project
+6. Admin app can use “Sync from Cloud” to pull user expenses into SQLite (optional enhancement)
+
+---
+
+## Author
+
+**Kaung Set Linn**
